@@ -1,0 +1,15 @@
+# Object files
+*.d
+*.o
+*.obj
+*.elf
+*.hex
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# builds
+Debug
+Release
