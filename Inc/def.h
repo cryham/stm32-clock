@@ -23,6 +23,8 @@ extern const uint
 
 //  dot matrix  digit, column
 	Port[4][5], Pin[4][5],
+//  rows shifter 4094
+	RowDPo, RowDPi, RowClkPo, RowClkPi,
 
 //  keys
 	KPort[4], KPin[4];

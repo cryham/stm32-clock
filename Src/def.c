@@ -12,6 +12,9 @@ const uint
 //  dot matrix  digit, column
 	Port[4][5] = {{1,1,1,1,1},{1,1, 0, 0, 0}, {0,0,0,0,0},{0,0,0,1,1}},
 	Pin [4][5] = {{9,8,7,6,5},{4,3,15,12,11}, {0,1,2,3,4},{5,6,7,0,1}},
+//  rows shifter 4094
+	RowDPo = 2, RowDPi = 13,  // data
+	RowClkPo = 2, RowClkPi = 14,  // clk
 
 //  keys
 	KPort[4] = { 0,1, 0,0},

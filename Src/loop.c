@@ -19,10 +19,10 @@ void Loop()
 	if (rr>=0 && rr<7)
 	for (d=0; d<4; ++d)
 	{
-		uint u = Digits[v[d]][rr];
-		for (i=0; i<5; ++i)
-			Set(Port[d][i], Pin[d][i], u & (1<<(4-i)));
-	}
+			uint u = Digits[v[d]][rr];
+			for (i=0; i<5; ++i)
+				Set(Port[d][i], Pin[d][i], u & (1<<(4-i)));
+		}
 	HAL_Delay(10);
 
 	for (d=0; d<4; ++d)
@@ -34,13 +34,13 @@ void Loop()
 	//  rows, shifter
 	if (r == 0 || r == 1)
 	{
-		Set(2, 13, r == 0 ? 0 : 1);  // data
+		Set(RowDPo, RowDPi, r == 0 ? 0 : 1);  // data
 		HAL_Delay(1);
 	}
 
-	Set(2, 14, 0);
+	Set(RowClkPo, RowClkPi, 0);  // clk
 	HAL_Delay(1);
-	Set(2, 14, 1);  // clk
+	Set(RowClkPo, RowClkPi, 1);
 	HAL_Delay(1);
 
 	++r;
