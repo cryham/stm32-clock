@@ -3,6 +3,7 @@
 
 
 void GPIO_Init();
+void RCC_Config();
 extern void Loop();
 
 
@@ -12,6 +13,8 @@ int main()
 {
 	//  Reset, SysTick at 1ms
 	HAL_Init();
+
+	RCC_Config();
 
 	//  Initialize peripherals
 	GPIO_Init();
@@ -31,7 +34,7 @@ void _Error_Handler(char *file, int line)
 }
 
 //  RCC Osc and Clock config
-void RCC_Config(void)
+void RCC_Config()
 {
 	RCC_OscInitTypeDef osc;
 	osc.OscillatorType = RCC_OSCILLATORTYPE_HSE;
@@ -68,14 +71,27 @@ void GPIO_Init()
 	GPIO_InitTypeDef gpio;
 
 	//  GPIO ports clock enable
+	__HAL_RCC_GPIOA_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();
+	__HAL_RCC_GPIOC_CLK_ENABLE();
 
 	//  Configure GPIO pin output level
 	gpio.Mode = GPIO_MODE_OUTPUT_PP;
 	gpio.Pull = GPIO_NOPULL;
 	gpio.Speed = GPIO_SPEED_FREQ_HIGH;
 
-	//  leds
+	//  Configure GPIO pins
+	//  4 digits x 5 columns
+	int d,i;
+	for (d=0; d<4; ++d)
+	for (i=0; i<5; ++i)
+		Init(Port[d][i], Pin[d][i]);
+
+	//  rows shifter, 4094
+	Init(2, 13);
+	Init(2, 14);
+
+	//  LEDs
 	Init(YlwPo, YlwPi);
 	Init(GrnPo, GrnPi);
 }
