@@ -4,17 +4,21 @@
 
 void GPIO_Init();
 void RCC_Config();
+void RTC_Init();
 extern void Loop();
+
+RTC_HandleTypeDef hrtc;
 
 
 //  application entry point
-//
+//  ------
 int main()
 {
 	//  Reset, SysTick at 1ms
 	HAL_Init();
 
 	RCC_Config();
+	RTC_Init();
 
 	//  Initialize peripherals
 	GPIO_Init();
@@ -26,7 +30,47 @@ int main()
 }
 
 
-//  GPIO util
+//  RTC init
+void RTC_Init()
+{
+	RCC_OscInitTypeDef osc;
+	//uint32_t rtc_freq = 0;
+
+	__HAL_RCC_PWR_CLK_ENABLE();
+	HAL_PWR_EnableBkUpAccess();
+	__HAL_RCC_BACKUPRESET_FORCE(); 
+	__HAL_RCC_BACKUPRESET_RELEASE();
+
+	//  Enable LSE Oscillator
+	osc.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+	osc.PLL.PLLState = RCC_PLL_NONE;  // otherwise PLL reconfigured
+	osc.LSEState = RCC_LSE_ON;  // external 32.768 kHz
+	if (HAL_RCC_OscConfig(&osc) == HAL_OK)
+	{	//  Connect LSE to RTC
+		//__HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSE);
+		__HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
+		//rtc_freq = LSE_VALUE;
+	}else
+	{	// Enable LSI clock
+		osc.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
+		osc.PLL.PLLState = RCC_PLL_NONE;
+		osc.LSEState = RCC_LSE_OFF;
+		osc.LSIState = RCC_LSI_ON;
+		if (HAL_RCC_OscConfig(&osc) != HAL_OK) {  }
+		//  Connect LSI to RTC
+		//__HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSI);
+		__HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
+		//rtc_freq = 32000;
+	}
+	__HAL_RCC_RTC_ENABLE();
+
+	hrtc.Instance = RTC;
+	hrtc.Init.AsynchPrediv = RTC_AUTO_1_SECOND;
+	hrtc.Init.OutPut = RTC_OUTPUTSOURCE_NONE;  //RTC_OUTPUTSOURCE_ALARM;
+	if (HAL_RTC_Init(&hrtc) != HAL_OK) {  }
+}
+
+
 //  in case of error
 void _Error_Handler(char *file, int line)
 {
@@ -37,9 +81,10 @@ void _Error_Handler(char *file, int line)
 void RCC_Config()
 {
 	RCC_OscInitTypeDef osc;
-	osc.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+	osc.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSE;
 	osc.HSEState = RCC_HSE_ON;
 	osc.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+	osc.LSEState = RCC_LSE_ON;
 	osc.HSIState = RCC_HSI_ON;
 	osc.PLL.PLLState = RCC_PLL_ON;
 	osc.PLL.PLLSource = RCC_PLLSOURCE_HSE;
@@ -58,8 +103,14 @@ void RCC_Config()
 	if (HAL_RCC_ClockConfig(&clk, FLASH_LATENCY_2) != HAL_OK)
 		_Error_Handler(__FILE__, __LINE__);
 
+	/*RCC_PeriphCLKInitTypeDef pclk;  //?
+	pclk.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+	pclk.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
+	if (HAL_RCCEx_PeriphCLKConfig(&pclk) != HAL_OK)
+		_Error_Handler(__FILE__, __LINE__);*/
+
 	//  Configure Systick interrupt time
-	HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq() / 10000);  // param
+	HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq() / 10000);  // param /1000
 	HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 	HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
