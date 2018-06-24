@@ -25,12 +25,19 @@ int main()
 
 //  GPIO util
 GPIO_TypeDef* Ports[4] = {GPIOA, GPIOB, GPIOC, GPIOD};
-#define Init(port, pin)       {  gpio.Pin = 1u << pin;  HAL_GPIO_Init(Ports[port], &gpio);  }
-#define Set(port, pin, val)   HAL_GPIO_WritePin(Ports[port], 1u << pin, val ? GPIO_PIN_SET : GPIO_PIN_RESET);
 
-//  LEDs
-const char YlwPo = 1, YlwPi = 14;
-const char GrnPo = 1, GrnPi = 13;
+#define Init(port, pin) \
+	gpio.Pin = 1u << pin;  HAL_GPIO_Init(Ports[port], &gpio);
+
+#define Set(port, pin, val) \
+	HAL_GPIO_WritePin(Ports[port], 1u << pin, val ? GPIO_PIN_SET : GPIO_PIN_RESET);
+
+#define Get(port, pin) \
+	(HAL_GPIO_ReadPin(ports[port], 1u << pin) == GPIO_PIN_RESET)
+
+//  LEDs  yellow,green  port,pin
+const uint YlwPo = 1, YlwPi = 14,
+			GrnPo = 1, GrnPi = 13;
 
 
 //  Configure pins  ----
