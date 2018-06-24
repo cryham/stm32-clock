@@ -12,7 +12,7 @@ extern GPIO_TypeDef* Ports[4];
 	HAL_GPIO_WritePin(Ports[port], 1u << (pin), (val) ? GPIO_PIN_SET : GPIO_PIN_RESET);
 
 #define Get(port, pin) \
-	(HAL_GPIO_ReadPin(ports[port], 1u << (pin)) == GPIO_PIN_RESET)
+	(HAL_GPIO_ReadPin(Ports[port], 1u << (pin)) == GPIO_PIN_RESET)
 
 
 //  PINS config  ----
@@ -22,8 +22,11 @@ extern const uint
 	YlwPo, YlwPi, GrnPo, GrnPi,
 
 //  dot matrix  digit, column
-	Port[4][5], Pin[4][5];
+	Port[4][5], Pin[4][5],
+
+//  keys
+	KPort[4], KPin[4];
 
 
-//  Digits font  value, row, column bits
+//  Digits 5x7 font  value, row, columns in bits
 extern const char Digits[10][7];
